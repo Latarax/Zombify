@@ -10,4 +10,5 @@ class Settings:
         self.bullets_allowed = 1
         self.bullet_available = True
         self.bullet_speed = 20
+        self.zombie_speed = 0.25
         

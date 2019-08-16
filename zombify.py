@@ -16,10 +16,14 @@ class Zombify:
         self.screen = pygame.display.set_mode((self.settings.width,                 self.settings.height))
         self.screen_rect = self.screen.get_rect()
         self.survivor = Survivor(self)
-        self.zombie = pygame.sprite.Group()
+        self.zombies = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
+        self._add_zombie()
         self.slow_mo_reload_event = pygame.USEREVENT + 1
+        self.spawn_enemy = pygame.USEREVENT + 2
         pygame.time.set_timer(self.slow_mo_reload_event, 5000)
+        pygame.time.set_timer(self.spawn_enemy, 5000)
+
         self.myFont = pygame.font.SysFont("Times New Roman", 18)
         
     def run_game(self):
@@ -29,6 +33,7 @@ class Zombify:
             self._event_handler()          
             self.survivor.update_survivor()
             self.bullets.update()
+            self.zombies.update(self)
             self._remove_bullets()
             self._update_screen()
 
@@ -44,7 +49,14 @@ class Zombify:
         self.screen.blit(self.label4, (self.screen_rect.right-50, self.screen_rect.top+20))
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
+                    
+        #self.zombies.draw(self.screen)
+        for zombie in self.zombies.sprites():
+            zombie.draw_zombie()
+
         pygame.display.flip()
+        
+        
 
     def _add_bullet(self):
         """Adds bullet to screen."""
@@ -54,13 +66,21 @@ class Zombify:
             self.bullets.add(new_bullet)
             self.settings.bullet_available = False
     
+    def _add_zombie(self):
+        """Adds zombie to screen."""
+        zombie = Zombie(self)
+        self.zombies.add(zombie)
+    
     def _remove_bullets(self):
         """Removes bullet object if it leaves bounds of the screen."""
         for bullet in self.bullets.copy():
-            if bullet.image_rect.bottom <= self.screen_rect.top or bullet.image_rect.right <= self.screen_rect.left or bullet.image_rect.top >= self.screen_rect.bottom or bullet.image_rect.left >= self.screen_rect.right:
+            if bullet.rect.bottom <= self.screen_rect.top or bullet.rect.right <= self.screen_rect.left or bullet.rect.top >= self.screen_rect.bottom or bullet.rect.left >= self.screen_rect.right:
                 self.bullets.remove(bullet)
                 self.settings.bullet_available = True
-        print(len(self.bullets))
+        
+        collisions = pygame.sprite.groupcollide(
+            self.bullets, self.zombies, True, True) 
+        #print(len(self.bullets))
 
     def _event_handler(self):
         """Manages events such as keystrokes or mouse clicks."""
@@ -69,6 +89,8 @@ class Zombify:
                 sys.exit()
             elif event.type == self.slow_mo_reload_event:
                 self.survivor.slow_mo_available = True
+            elif event.type == self.spawn_enemy:
+                self._add_zombie()
             # Handles events when key is pressed
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
@@ -94,7 +116,6 @@ class Zombify:
                     self.survivor.slow_mo_available = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    print("working")
                     self._add_bullet()
 
     def _onscreen_text(self):

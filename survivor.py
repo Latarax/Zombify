@@ -3,10 +3,13 @@ import math
 from time import sleep
 
 class Survivor:
-    """Class for the main character of the game which manages current instance of character."""
-
+    """
+    Class for the main character of the game which manages current instance of character.
+    """
     def __init__(self, current_game):
-        """Constructor that takes in current instance of game and sets attributes"""
+        """
+        Takes in current instance of game and initializes survivor's attributes.
+        """
         # Load main character image and set the rect and starting position
         self.screen = current_game.screen
         self.settings = current_game.settings
@@ -25,7 +28,7 @@ class Survivor:
         self.jump_count = 10
 
     def update_survivor(self):
-        """Moves survivor according to keystrokes and mouse movement"""
+        """Moves survivor according to keystrokes and mouse movement."""
         self._mouse_rotation()
         # Rightward movement
         if self.moving_right and self.image_rect.right < self.screen_rect.right:
@@ -42,11 +45,12 @@ class Survivor:
             #self.slow_mo_available = False
             
     def _jump(self):
-        """Moves survivor upward and downward in a jumping motion"""
+        """Moves survivor upward and downward in a jumping motion."""
         # Slows down jump and adjusts movement variables accordingly
         pygame.time.delay(10)
         self.settings.speed = 9
         self.settings.bullet_speed = 5
+        self.settings.zombie_speed = 0.75
         if self.jump_count >= -10:
             up_down = 1
             if self.jump_count < 0:
@@ -61,9 +65,10 @@ class Survivor:
             self.image_rect.bottom = self.screen_rect.bottom
             self.settings.speed = 3
             self.settings.bullet_speed = 20
+            self.settings.zombie_speed = 0.25
 
     def _mouse_rotation(self):
-        """"Aims the survivor's gun to the mouse's current position"""
+        """"Aims the survivor's gun to the mouse's current position."""
         mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos()
         self.survivor_x = mouse_pos_x - self.image_rect.x
         self.survivor_y = mouse_pos_y - self.image_rect.y
